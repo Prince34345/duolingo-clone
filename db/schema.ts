@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable , serial, text} from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable , serial, text, boolean} from "drizzle-orm/pg-core";
 export const courses = pgTable("courses", {
     id: serial("id").primaryKey(),
     title: text("title").notNull(),
@@ -23,15 +23,62 @@ export const units = pgTable('units', {
 })
 
 export const lessons = pgTable("lessons", {
-    id: serial("id")
+    id: serial("id").notNull(),
+    title: text("title").notNull(),
+    unitId: integer("unit_id").references(() => units.id, {onDelete: "cascade"}).notNull(),
+    order: integer("order").notNull()
 })
 
-const unitRelations = relations(units, ({many, one}) => ({
+export const lessonsRelations = relations(lessons, ({one, many}) => ({
+    unit: one(units, {
+        fields: [lessons.unitId],
+        references: [units.id]
+    }),
+    challenges: many(challenges)
+}))
+
+export const unitRelations = relations(units, ({many, one}) => ({
     course: one(courses, {
         fields: [units.courseId],
         references: [courses.id]
+    }),
+    lesson :many(lessons)
+}))
+
+export const challengesEnum = pgEnum("type", ["SELECT", "ASSITS"])
+
+export const challenges = pgTable("challenges", {
+    id: serial("id").notNull(),
+    lessonID: integer("lessons_id").references(() => lessons.id, {onDelete: 'cascade'}).notNull(),
+    type: challengesEnum("type").notNull(),
+    question: text("question").notNull(),
+    order: integer("order").notNull()
+})
+
+
+export const challengesRelations = relations(challenges, ({one, many}) => ({
+    lessons: one(lessons, {
+        fields: [challenges.lessonID],
+        references: [lessons.id]
     })
 }))
+
+export const challengeOption = pgTable("challengeOption", {
+    id: serial("id").notNull(),
+    challengeID: integer("challenge_id").references(() => challenges.id, {onDelete: 'cascade'}).notNull(),
+    text: text("text").notNull(),
+    correct: boolean("correct").notNull(),
+    imageSrc: text("image_Src"),
+    audioSrc: text("audio_Src")
+})
+
+export const challengeOptionRelations = relations(challengeOption, ({one}) => ({
+    challenge: one(challenges, {
+        fields: [challengeOption.challengeID],
+        references: [challenges.id]
+    })
+}))
+
 
 export const userProgress = pgTable('user_progress', {
     userId: text("user_id").primaryKey(),
