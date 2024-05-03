@@ -18,12 +18,12 @@ export const units = pgTable('units', {
     id: serial("id").primaryKey(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    courseId: integer("course_id").references(() => courses.id, {onDelete: 'cascade'}).notNull(),
+    courseID: integer("course_id").references(() => courses.id, {onDelete: 'cascade'}).notNull(),
     order:integer("order").notNull()
 })
 
 export const lessons = pgTable("lessons", {
-    id: serial("id").notNull(),
+    id: serial("id").primaryKey(),
     title: text("title").notNull(),
     unitId: integer("unit_id").references(() => units.id, {onDelete: "cascade"}).notNull(),
     order: integer("order").notNull()
@@ -39,16 +39,16 @@ export const lessonsRelations = relations(lessons, ({one, many}) => ({
 
 export const unitRelations = relations(units, ({many, one}) => ({
     course: one(courses, {
-        fields: [units.courseId],
+        fields: [units.courseID],
         references: [courses.id]
     }),
-    lesson :many(lessons)
+    lessons :many(lessons)
 }))
 
 export const challengesEnum = pgEnum("type", ["SELECT", "ASSITS"])
 
 export const challenges = pgTable("challenges", {
-    id: serial("id").notNull(),
+    id: serial("id").primaryKey(),
     lessonID: integer("lessons_id").references(() => lessons.id, {onDelete: 'cascade'}).notNull(),
     type: challengesEnum("type").notNull(),
     question: text("question").notNull(),
@@ -60,11 +60,13 @@ export const challengesRelations = relations(challenges, ({one, many}) => ({
     lessons: one(lessons, {
         fields: [challenges.lessonID],
         references: [lessons.id]
-    })
+    }),
+    challengeOptions: many(challengeOptions),
+    challengeProgress: many(challengeProgress)
 }))
 
-export const challengeOption = pgTable("challengeOption", {
-    id: serial("id").notNull(),
+export const challengeOptions = pgTable("challenge_option", {
+    id: serial("id").primaryKey(),
     challengeID: integer("challenge_id").references(() => challenges.id, {onDelete: 'cascade'}).notNull(),
     text: text("text").notNull(),
     correct: boolean("correct").notNull(),
@@ -72,9 +74,24 @@ export const challengeOption = pgTable("challengeOption", {
     audioSrc: text("audio_Src")
 })
 
-export const challengeOptionRelations = relations(challengeOption, ({one}) => ({
+export const challengeOptionRelations = relations(challengeOptions, ({one}) => ({
     challenge: one(challenges, {
-        fields: [challengeOption.challengeID],
+        fields: [challengeOptions.challengeID],
+        references: [challenges.id]
+    })
+}))
+
+export const challengeProgress = pgTable("challenge_progress", {
+    id: serial("id").primaryKey(),
+    userID:text("user_id").notNull(), // TODO 
+    challengeID: integer("challenge_id").references(() => challenges.id, {onDelete: 'cascade'}).notNull(),
+    text: text("text").notNull(),
+    completed: boolean("completed").notNull().default(false)
+})
+
+export const challengeProgressRelations = relations(challengeProgress, ({one}) => ({
+    challenge: one(challenges, {
+        fields: [challengeProgress.challengeID],
         references: [challenges.id]
     })
 }))
