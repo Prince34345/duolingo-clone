@@ -2,16 +2,19 @@ import Feedwrapper from "@/components/feedwrapper"
 import Stickywrapper from "@/components/stickywrapper"
 import Header from "./header"
 import UserProgress from "@/components/userprogress"
-import { getUnits, getUserProgress } from "@/db/queries"
+import { getUnits, getUserProgress, getCourseProgress, getLessonPercentage } from "@/db/queries"
 import { redirect } from "next/navigation"
-import { lessons } from '../../../db/schema';
 import Unit from "./unit"
+import { lessons } from '@/db/schema';
 
 const LearnPage  = async () => {
   const userProgressData = getUserProgress();
   const unitsData = getUnits()
+  const courseProgressData = getCourseProgress();
+  const lessonPercentageData = getLessonPercentage();
+  
 
-  const [userProgress, units] = await Promise.all([userProgressData, unitsData])
+  const [userProgress, units, courseProgress, lessonPercentage] = await Promise.all([userProgressData, unitsData, courseProgressData, lessonPercentageData])
   
   if(!userProgress || !userProgress.activeCourse) {
     redirect("/courses")
@@ -27,7 +30,7 @@ const LearnPage  = async () => {
              {
               units.map((unit) => {
                 return <div className="mb-10" key={unit.id}>
-                    <Unit id={unit.id} order={unit.order} description={unit.description}  title={unit.title} lessons={unit.lessons} activeLesson={undefined} activeLessonPercentage={0}/>
+                    <Unit id={unit.id} order={unit.order} description={unit.description}  title={unit.title} lessons={unit.lessons} activeLesson={courseProgress?.activeLesson as typeof lessons} activeLessonPercentage={lessonPercentage}/>
                 </div>
               })
              }
