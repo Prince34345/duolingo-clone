@@ -5,7 +5,7 @@ import UserProgress from "@/components/userprogress"
 import { getUnits, getUserProgress, getCourseProgress, getLessonPercentage } from "@/db/queries"
 import { redirect } from "next/navigation"
 import Unit from "./unit"
-import { lessons } from '@/db/schema';
+import { lessons, units as unitsSchema } from '@/db/schema';
 
 const LearnPage  = async () => {
   const userProgressData = getUserProgress();
@@ -13,7 +13,6 @@ const LearnPage  = async () => {
   const courseProgressData = getCourseProgress();
   const lessonPercentageData = getLessonPercentage();
   
-
   const [userProgress, units, courseProgress, lessonPercentage] = await Promise.all([userProgressData, unitsData, courseProgressData, lessonPercentageData])
   
   if(!userProgress || !userProgress.activeCourse) {
@@ -30,7 +29,9 @@ const LearnPage  = async () => {
              {
               units.map((unit) => {
                 return <div className="mb-10" key={unit.id}>
-                    <Unit id={unit.id} order={unit.order} description={unit.description}  title={unit.title} lessons={unit.lessons} activeLesson={courseProgress?.activeLesson as typeof lessons} activeLessonPercentage={lessonPercentage}/>
+                    <Unit id={unit.id} order={unit.order} description={unit.description}  title={unit.title} lessons={unit.lessons} activeLesson={courseProgress?.activeLesson as typeof lessons.$inferSelect & {
+                      unit: typeof unitsSchema.$inferSelect
+                    } | undefined } activeLessonPercentage={lessonPercentage}/>
                 </div>
               })
              }
