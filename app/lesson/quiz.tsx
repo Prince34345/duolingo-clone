@@ -27,8 +27,17 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
            return uncompletedIndex === -1 ? 0 : uncompletedIndex
     })
 
+    const [selectedOption, setSelectedOption] =useState<number>()
+    const [status, setStatus] = useState<"correct" | "none" | "wrong">("none")
     const challenge = challenges[activeIndex]
     const options = challenge?.challengeOptions ?? [];
+
+    const onSelect = (id: number) => {
+        if (status !== "none") {
+            return
+        }
+        setSelectedOption(id)
+    }
 
     const title = challenge.type === "ASSITS" ? "Select the correct meaning" : challenge.question
     return (
@@ -51,9 +60,9 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
                     )}
                     <Challenge
                          options={options}
-                         onSelect={() => {}}
-                         status="none"
-                         selectedOption={undefined}
+                         onSelect={onSelect}
+                         status={status}
+                         selectedOption={selectedOption}
                          disabled={false}
                          type={challenge.type}
                     />
@@ -61,6 +70,9 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
             </div>
         </div>
     </div>
+    <Footer
+        disabled={!selectedOption}
+    />
     </>
 
   )

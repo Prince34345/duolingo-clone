@@ -48,9 +48,9 @@ await db.insert(schema.challenges).values([
 ])
 
 await db.insert(schema.challengeOptions).values([
-    {id: 1, challengeID: 1, imageSrc: "/asset/man.svg", correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
-    {id: 2, challengeID: 1, imageSrc: "/asset/woman.svg", correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
-    {id: 3, challengeID: 1, imageSrc: "/asset/robot.svg", correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+    {id: 1, challengeID: 1, imageSrc: "/asset/man.png", correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {id: 2, challengeID: 1, imageSrc: "/asset/woman.webp", correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {id: 3, challengeID: 1, imageSrc: "/asset/robot.png", correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 
 
