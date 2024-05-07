@@ -5,6 +5,7 @@ import { useState } from "react";
 import Header from "./header";
 import { QuestionBubble } from "./question-bubble";
 import Challenge from "./challenge";
+import Footer from "./footer";
 
 type Props = {
    intialPercentage: number;
@@ -28,7 +29,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     })
 
     const [selectedOption, setSelectedOption] =useState<number>()
-    const [status, setStatus] = useState<"correct" | "none" | "wrong">("none")
+    const [status, setStatus] = useState<"correct" | "none" | "wrong">("correct")
     const challenge = challenges[activeIndex]
     const options = challenge?.challengeOptions ?? [];
 
@@ -72,6 +73,8 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     </div>
     <Footer
         disabled={!selectedOption}
+        status={status}
+        onCheck={() => {}}
     />
     </>
 
