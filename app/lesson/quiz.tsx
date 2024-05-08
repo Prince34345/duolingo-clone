@@ -29,16 +29,44 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     })
 
     const [selectedOption, setSelectedOption] =useState<number>()
-    const [status, setStatus] = useState<"correct" | "none" | "wrong">("correct")
+    const [status, setStatus] = useState<"correct" | "none" | "wrong">("none")
     const challenge = challenges[activeIndex]
     const options = challenge?.challengeOptions ?? [];
 
+    const onNext = () => {
+        setActiveIndex((current) => current + 1);
+    };
     const onSelect = (id: number) => {
         if (status !== "none") {
             return
         }
         setSelectedOption(id)
+    };
+    const onContinue = () => {
+      if (!selectedOption) {
+          return       
+      }
+      if (status === "wrong") {
+          setStatus("none");
+          setSelectedOption(undefined);
+          return;
+      }
+      if (status === "correct") {
+        onNext()
+        setStatus("none");
+        setSelectedOption(undefined);
+        return;
     }
+  const correctOption = options.find((option) => option.correct)
+ if(!correctOption){
+    return
+ }
+  if (correctOption && correctOption.id === selectedOption){
+      console.log("Correct Options.")   
+  }else { 
+      console.error("Incorrect option.")
+  }
+}
 
     const title = challenge.type === "ASSITS" ? "Select the correct meaning" : challenge.question
     return (
@@ -74,7 +102,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     <Footer
         disabled={!selectedOption}
         status={status}
-        onCheck={() => {}}
+        onCheck={onContinue}
     />
     </>
 
