@@ -3,8 +3,9 @@
 import { and, eq } from "drizzle-orm";
 import db from "@/db/drizzle";
 import { getUserProgress } from "@/db/queries";
-import { challenges, challengeProgress } from "@/db/schema";
+import { challenges, challengeProgress, userProgress, challengeProgressRelations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
 export const upsertChallengeProgress = async (challengeId: number) => {
     const {userId} = await auth();
@@ -18,11 +19,11 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     
     const challenge = await db.query.challenges.findFirst({
         where: eq(challenges.id, challengeId)
-    }) 
+ }) 
    if (!challenge) {
        throw new Error("Challenge Not found!")   
    }
-   const lesson = challenge.lessonID
+   const lessonId = challenge.lessonID
    const existingChallengeProgress = await db.query.challengeProgress.findFirst({
         where: and(eq(challengeProgress.userID, userId), eq(challengeProgress.challengeID, challengeId))
    });
@@ -32,4 +33,28 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         return {error: "hearts."}    
    }
 
+   if (isPractice) {
+      await db.update(challengeProgress).set({
+          completed: true,
+      }).where(eq(challengeProgress.id, existingChallengeProgress.id))
+
+      await db.update(userProgress).set({
+         hearts: Math.min(currentUserProgress.hearts + 1, 5),
+         points: currentUserProgress.points + 10
+      }).where(eq(userProgress.userId, userId))
+
+      revalidatePath("/learn");
+      revalidatePath("/lesson");
+      revalidatePath("/quests");
+      revalidatePath("/leaderboard");
+      revalidatePath(`/lesson/${lessonId}`);
+      return
+   }
+   await db.insert(challengeProgress).values({
+    challengeID: challengeId,
+    userID: userId,
+    completed: true,
+    text: "$$#R"
+   })
 }
+
