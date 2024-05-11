@@ -45,12 +45,26 @@ await db.insert(schema.lessons).values([
 
 await db.insert(schema.challenges).values([
     {id: 1, lessonID: 1, type: "SELECT", order: 1, question: 'Which one of these is the "the man"?'},
+    {id: 2, lessonID: 2, type: "ASSITS", order: 2, question: 'the man'},
+    {id: 3, lessonID: 3, type: "SELECT", order: 3, question: 'Which one of these is the "the robot"?'},
+    
 ])
 
 await db.insert(schema.challengeOptions).values([
-    {id: 1, challengeID: 1, imageSrc: "/asset/man.png", correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
-    {id: 2, challengeID: 1, imageSrc: "/asset/woman.webp", correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
-    {id: 3, challengeID: 1, imageSrc: "/asset/robot.png", correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+    {challengeID: 1, imageSrc: "/asset/man.png", correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {challengeID: 1, imageSrc: "/asset/woman.webp", correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {challengeID: 1, imageSrc: "/asset/robot.png", correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+])
+await db.insert(schema.challengeOptions).values([
+    {id: 4, challengeID: 1, correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {id: 5, challengeID: 2, correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {id: 6, challengeID: 3, correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+])
+
+await db.insert(schema.challengeOptions).values([
+    {id: 7, challengeID: 1, correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {id: 8, challengeID: 2, correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {id: 9, challengeID: 3, correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 
 
