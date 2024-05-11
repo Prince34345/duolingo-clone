@@ -27,7 +27,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     
    
     const [hearts, setHearts] =  useState(intialHearts)
-    const [percentage, setPercentage] = useState(intialPercentage)
+    const [percentage, setPercentage] = useState(intialPercentage) 
     const [challenges] = useState(intialLessonChallenges)
     const [activeIndex, setActiveIndex] = useState(() =>  {
            const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed )
@@ -76,8 +76,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
               }
 
               setStatus("correct");
-              setPercentage((prevPerc) =>  prevPerc + 100 / challenges.length)
-
+              setPercentage((prevPerc) => prevPerc + 100 / challenges?.length)
              if (intialPercentage === 100) {
                 setHearts((prev) => Math.min(prev + 1, 5));  
              }
@@ -112,7 +111,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
                          onSelect={onSelect}
                          status={status}
                          selectedOption={selectedOption}
-                         disabled={false}
+                         disabled={isPending}
                          type={challenge.type}
                     />
                  </div>
@@ -120,7 +119,7 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
         </div>
     </div>
     <Footer
-        disabled={!selectedOption}
+        disabled={isPending || !selectedOption}
         status={status}
         onCheck={onContinue}
     />

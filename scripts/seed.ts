@@ -56,15 +56,15 @@ await db.insert(schema.challengeOptions).values([
     {challengeID: 1, imageSrc: "/asset/robot.png", correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 await db.insert(schema.challengeOptions).values([
-    {id: 4, challengeID: 1, correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
-    {id: 5, challengeID: 2, correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
-    {id: 6, challengeID: 3, correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+    {challengeID: 2, correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {challengeID: 2, correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {challengeID: 2, correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 
 await db.insert(schema.challengeOptions).values([
-    {id: 7, challengeID: 1, correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
-    {id: 8, challengeID: 2, correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
-    {id: 9, challengeID: 3, correct: false, text: "el robot", audioSrc: "/music/es_robot.mp3"}
+    {challengeID: 3, imageSrc:"/asset/man.png",correct: false, text: "el hombre", audioSrc: "/music/es_man.mp3"},
+    {challengeID: 3, imageSrc:"/asset/woman.webp",correct: false, text: "la mujer", audioSrc: "/music/es_woman.mp3"},
+    {challengeID: 3, imageSrc:"/asset/robot.png",correct: true, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 
 

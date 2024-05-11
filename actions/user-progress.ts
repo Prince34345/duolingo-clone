@@ -2,8 +2,9 @@
 
 import db from "@/db/drizzle";
 import { getCourseById, getUserProgress } from "@/db/queries";
-import { userProgress } from "@/db/schema";
+import { challengeProgress, userProgress } from "@/db/schema";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -51,4 +52,28 @@ export const upsertUserProgress  = async (courseID: number) => {
     revalidatePath("/learn");
     redirect("/learn");
 
+}
+
+
+export const reduceHearts = async (challengeID: number) => {
+      const {userId} = await auth()
+
+      if (!userId) {
+          throw new Error("Unauthorized.");
+      }
+
+      const currentUserProgress  = await getUserProgress();
+     
+      const existingChallengeProgess = await db.query.challengeProgress.findFirst({
+         where: and(eq(challengeProgress.userID, userId), eq(challengeProgress.challengeID, challengeID))
+      })
+
+      const isPractice =  !!existingChallengeProgess;
+
+      if (isPractice) {
+          return {error: "practice."}
+      }
+      if (!currentUserProgress) {
+          throw new Error("User Progress not found")   
+      }
 }
