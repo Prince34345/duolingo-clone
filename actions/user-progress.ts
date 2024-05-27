@@ -2,7 +2,7 @@
 
 import db from "@/db/drizzle";
 import { getCourseById, getUserProgress } from "@/db/queries";
-import { challengeProgress, userProgress } from "@/db/schema";
+import { challengeProgress, challenges, lessons, userProgress } from "@/db/schema";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -63,7 +63,17 @@ export const reduceHearts = async (challengeID: number) => {
       }
 
       const currentUserProgress  = await getUserProgress();
-     
+      
+      const challenge = await db.query.challenges.findFirst({
+          where: eq(challenges.id, challengeID)
+      })
+
+      
+      if (!challenge) {
+        throw new Error("challenges not found")      
+      }
+      const lessonId = challenge.lessonID
+       
       const existingChallengeProgess = await db.query.challengeProgress.findFirst({
          where: and(eq(challengeProgress.userID, userId), eq(challengeProgress.challengeID, challengeID))
       })
@@ -76,4 +86,22 @@ export const reduceHearts = async (challengeID: number) => {
       if (!currentUserProgress) {
           throw new Error("User Progress not found")   
       }
+
+    //   TODO : Handle Subscription.
+
+    if (currentUserProgress.hearts === 0) {
+          return {error : "hearts."}       
+    }
+    
+    await db.update(userProgress).set({
+        hearts: Math.max(currentUserProgress.hearts - 1, 0)
+    }).where(eq(userProgress.userId, userId));
+
+    revalidatePath("/shop");
+    revalidatePath("/learn");
+    revalidatePath("/quests");
+    revalidatePath("/leaderboard");
+    revalidatePath(`/lesson/${lessonId}`);
+
+    
 }

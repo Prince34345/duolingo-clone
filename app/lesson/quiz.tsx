@@ -3,11 +3,15 @@
 import { challenges, challengeOptions } from "@/db/schema";
 import { useState, useTransition } from "react";
 import Header from "./header";
+import ResultCard from "./result-card";
 import { QuestionBubble } from "./question-bubble";
 import Challenge from "./challenge";
 import Footer from "./footer";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { toast } from "sonner";
+import { reduceHearts } from "@/actions/user-progress";
+import { useAudio } from "react-use";
+import Image from "next/image";
 
 type Props = {
    intialPercentage: number;
@@ -22,9 +26,12 @@ type Props = {
 
 
 const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPercentage , userSubscription}: Props) => {
-   
-    const [isPending, startTranstion] =  useTransition();
+    const [ correctAudio,_c,correctControl] = useAudio({src:"/music/correct.wav"})
+    const [ inCorrectAudio,_ic,inCorrectControl] = useAudio({src:"/music/incorrect.wav"})
+    const [ finishAudio,_f,finishControl] = useAudio({src:"/music/finish.wav"})
+
     
+    const [isPending, startTranstion] =  useTransition();
    
     const [hearts, setHearts] =  useState(intialHearts)
     const [percentage, setPercentage] = useState(intialPercentage) 
@@ -67,29 +74,56 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
  if(!correctOption){
     return
  }
-  if (correctOption && correctOption.id === selectedOption){
+  if (correctOption.id === selectedOption){
     startTranstion(() => {
         upsertChallengeProgress(challenge.id).then((response) => {
               if (response?.error === "hearts") {
                  console.error("Missing Hearts.");
                  return;               
               }
-
+              correctControl.play()
               setStatus("correct");
-              setPercentage((prevPerc) => prevPerc + 100 / challenges?.length)
+              setPercentage((Perc) => (Perc + 100 / challenges.length))
              if (intialPercentage === 100) {
                 setHearts((prev) => Math.min(prev + 1, 5));  
              }
             }).catch(() => toast.error("something went wrong. Please try again."))
     })
   }else { 
-      console.error("Incorrect option.")
-  }
-}
+      startTranstion(() => reduceHearts(challenge.id).then((response) => {
+        if (response?.error === "hearts") {
+           console.error("Missing Hearts.") 
+           return           
+        }
+        inCorrectControl.play()
+        setStatus("wrong")
+        if (!response?.error) {
+             setHearts((prev) => Math.max(prev - 1, 0))
+        }
+      }).catch(() => {toast.error("Something went wrong. please try again")}))
+  }}
 
+    if (true || !challenge) {
+        return (
+            <div className="max-w-lg mx-auto text-center items-center justify-center h-full flex flex-col gap-y-4 lg:gap-y-8">
+                 <Image alt={"Finish"} src={"asset/finish.svg"} className="hidden lg:block" height={100} width={100}/>
+                 <Image alt={"Finish"} src={"asset/finish.svg"} className="block lg:hidden" height={50} width={50}/>
+            <h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
+                Great Job <br /> You &apos;ve completed the lesson
+            </h1>
+            <div className="flex items-center gap-x-4 w-full">
+                  <ResultCard variant="points" value={challenges.length * 10} />
+                  <ResultCard variant="points" value={hearts} />
+
+            </div>
+            </div>
+        )        
+    }
     const title = challenge.type === "ASSITS" ? "Select the correct meaning" : challenge.question
     return (
     <>
+    {inCorrectAudio}
+    {correctAudio}
     <Header
         hearts={hearts}
         percentage={percentage}

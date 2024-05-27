@@ -43,12 +43,14 @@ await db.insert(schema.lessons).values([
 ])
 
 
+
 await db.insert(schema.challenges).values([
     {id: 1, lessonID: 1, type: "SELECT", order: 1, question: 'Which one of these is the "the man"?'},
-    {id: 2, lessonID: 2, type: "ASSITS", order: 2, question: 'the man'},
-    {id: 3, lessonID: 3, type: "SELECT", order: 3, question: 'Which one of these is the "the robot"?'},
+    {id: 2, lessonID: 1, type: "ASSITS", order: 2, question: 'the man'},
+    {id: 3, lessonID: 1, type: "SELECT", order: 3, question: 'Which one of these is the "the robot"?'},
     
 ])
+
 
 await db.insert(schema.challengeOptions).values([
     {challengeID: 1, imageSrc: "/asset/man.png", correct: true, text: "el hombre", audioSrc: "/music/es_man.mp3"},
@@ -67,10 +69,11 @@ await db.insert(schema.challengeOptions).values([
     {challengeID: 3, imageSrc:"/asset/robot.png",correct: true, text: "el robot", audioSrc: "/music/es_robot.mp3"}
 ])
 
-
-
-
-
+await db.insert(schema.challenges).values([
+    {id: 4, lessonID: 2, type: "SELECT", order: 1, question: 'Which one of these is the "the man"?'},
+    {id: 5, lessonID: 2, type: "ASSITS", order: 2, question: 'the man'},
+    {id: 6, lessonID: 2, type: "SELECT", order: 3, question: 'Which one of these is the "the robot"?'},
+])
 
         console.log("Seeding finished");
     } catch (error) {
