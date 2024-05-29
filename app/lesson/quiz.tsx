@@ -10,10 +10,12 @@ import Footer from "./footer";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { toast } from "sonner";
 import { reduceHearts } from "@/actions/user-progress";
-import { useAudio, useWindowSize } from "react-use";
+import { useAudio, useWindowSize, useMount } from "react-use";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Confetti from "react-confetti"
+import { useHeartsModal } from "@/store/use-hearts-modal";
+import { usePracticeModal } from "@/store/use-pratice-modal";
 type Props = {
    intialPercentage: number;
    intialHearts: number;
@@ -27,6 +29,16 @@ type Props = {
 
 
 const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPercentage , userSubscription}: Props) => {
+    const {open: openHeartsModal} = useHeartsModal();
+    const {open: openPracticeModal} = usePracticeModal();
+    
+    useMount(() => {
+        if (intialPercentage === 100) {
+            openPracticeModal()        
+        }
+    })
+
+
     const {width, height} = useWindowSize()
     const router = useRouter()
     
@@ -40,7 +52,9 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     const [isPending, startTranstion] =  useTransition();
     const [lessonId] = useState(intialLessonId)
     const [hearts, setHearts] =  useState(intialHearts)
-    const [percentage, setPercentage] = useState(intialPercentage) 
+    const [percentage, setPercentage] = useState(() => {
+        return intialPercentage === 100 ? 0 : intialPercentage
+    }) 
     const [challenges] = useState(intialLessonChallenges)
     const [activeIndex, setActiveIndex] = useState(() =>  {
            const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed )
@@ -84,14 +98,8 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
     startTranstion(() => {
         upsertChallengeProgress(challenge.id).then((response) => {
               if (response?.error === "hearts") {
-                 console.error("Missing Hearts.");
-                 return (
-                     <>
-                     <div>
-                        
-                     </div>
-                     </>
-                 )              
+                 openHeartsModal(); 
+                 return            
               }
               correctControl.play()
               setStatus("correct");
@@ -104,8 +112,8 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
   }else { 
       startTranstion(() => reduceHearts(challenge.id).then((response) => {
         if (response?.error === "hearts") {
-           console.error("Missing Hearts.") 
-           return           
+           openHeartsModal();
+           return;         
         }
         inCorrectControl.play()
         setStatus("wrong")
@@ -113,8 +121,8 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
              setHearts((prev) => Math.max(prev - 1, 0))
         }
       }).catch(() => {toast.error("Something went wrong. please try again")}))
-  }}
-
+  }
+}
     if (!challenge) {
         return (
             <>
@@ -127,9 +135,9 @@ const Quiz = ({intialHearts, intialLessonChallenges, intialLessonId, intialPerce
                 height={height}
             />
 
-            <div className="max-w-lg mx-auto text-center items-center justify-center h-full flex flex-col gap-y-4 lg:gap-y-8">
-                 <Image alt={"Finish"} src={"asset/finish.svg"} className="hidden lg:block" height={100} width={100}/>
-                 <Image alt={"Finish"} src={"asset/finish.svg"} className="block lg:hidden" height={50} width={50}/>
+            <div className="max-w-lg mx-auto text-center overflow-hidden  items-center justify-center h-full flex flex-col gap-y-4 lg:gap-y-8">
+                 <Image alt={"Finish"} src={"/asset/finish.svg"} className="hidden lg:block" height={100} width={100}/>
+                 <Image alt={"Finish"} src={"/asset/finish.svg"} className="block lg:hidden" height={50} width={50}/>
             <h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
                 Great Job <br /> You &apos;ve completed the lesson
             </h1>
