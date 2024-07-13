@@ -31,7 +31,7 @@ export const createStripeUrl = async () => {
             {
                 quantity: 1,
                 price_data: {
-                    currency: "INR",
+                    currency: "USD",
                     product_data: {
                         name: "Lingo Pro",
                         description: "Unlimited Hearts."
